@@ -3,16 +3,22 @@ import { useMoralis, useNativeBalance, useERC20Balances } from "react-moralis";
 export default function Main() {
     const { user } = useMoralis();
     const address = user.get("ethAddress");
-    const { data: balance } = useNativeBalance();
+    const { data: nativeBalance } = useNativeBalance();
     const { data: erc20balances } = useERC20Balances();
-    const formattedERC20balance = erc20balances[0].balance / 1000000000000000000;
+
+    function formatERC20balance(erc20balance, decimals) {
+        return erc20balance / (10 ** decimals);
+    }
+
+    const erc20balanceElements = erc20balances && erc20balances.map(balance => 
+        <h3 key={balance.token_address}>{formatERC20balance(balance.balance, balance.decimals)} {balance.symbol}</h3>)
 
     return (
         <div>
             <h1>Welcome {user.get("username")}</h1>
             <h1>{address}</h1>
-            <h3>{balance.formatted}</h3>
-            <h3>{formattedERC20balance} {erc20balances[0].symbol}</h3>
+            <h3>{nativeBalance.formatted}</h3>
+            {erc20balanceElements}
         </div>
     );
 }
